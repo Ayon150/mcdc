@@ -48,26 +48,21 @@ int main(void) {
 
 void I2C1_Init() {
 
-	/*Enable clock of GPIOB through AHB1ENR*/
 	RCC_AHB1ENR |= (1<<1);
 
-	/*Set PB8 & PB9 mode to alternate function thru GPIOB_MODER*/
 	GPIOB_MODER |= (1<<19);
 	GPIOB_MODER &= ~(1<<18);
 	GPIOB_MODER |= (1<<17);
 	GPIOB_MODER &= ~(1<<16);
 
-	/*Set PB8 & PB9 output type to open-drain*/
 	GPIOB_OTYPER |= (1<<8);
 	GPIOB_OTYPER |= (1<<9);
 
-	/*Set PB8 & PB9 to output pull-up*/
 	GPIOB_PUPDR &= ~(1<<19);
 	GPIOB_PUPDR |= (1<<18);
 	GPIOB_PUPDR &= ~(1<<17);
 	GPIOB_PUPDR |= (1<<16);
 
-	/*Set PB8 & PB9 alternate function type to I2C (AF4)*/
 	GPIOB_AFRH &= ~(0xFF<<0);
 	GPIOB_AFRH |= (1<<2);
 	GPIOB_AFRH |= (1<<6);
@@ -75,44 +70,33 @@ void I2C1_Init() {
 	/*Enable clock of I2C1*/
 	RCC_APB1ENR |= (1<<21);
 
-	/*Enter I2C peripheral reset mode*/
 	I2C1_CR1 |= (1<<15);
 
-	/*Come out of reset mode*/
 	I2C1_CR1 &= ~(1<<15);
 
-	/*Set I2C clock frequency (default 16 MHz)*/
 	I2C1_CR2 |= (1<<4);
 
-	/*Set slave address -- 784*/
 	I2C1_OAR1 = (0x12<<1);
 
-	/*Enable the address 784*/
 	I2C1_OAR1 |= (1<<14);
 
-	/*Now finally enable the I2C1*/
 	I2C1_CR1 |= (1<<0);
 }
 
 void I2C1_Read(int n, char *str) {
-	/*Enable acknowledge for slave -- 780*/
 	I2C1_CR1 |= (1<<10);
 
-	/* Wait for address match 785*/
 	while (!(I2C1_SR1 & (1 << 1))) {}
 
-	/* Clear ADDR flag */
 	(void)I2C1_SR2;
 
 	for (int i = 0; i < n; i++) {
 
-		/* Wait until data is received */
 		while (!(I2C1_SR1 & (1 << 6))) {}
 
-		/* Read received data */
 		str[i] = I2C1_DR;
 	}
 
-	/*Disable acknowledge for slave*/
 	I2C1_CR1 &= ~(1<<10);
 }
+
